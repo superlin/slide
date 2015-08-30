@@ -76,10 +76,15 @@
     return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
   })();
   
+  var isTouch = (function() {
+    return 'ontouchstart' in window;
+  })();
+  
   window.Detect = {
     transitionName: transitionName,
     transitionEndName: transitionEndName,
     transformName: transformName,
-    transform3d: transform3d
+    transform3d: transform3d,
+    isTouch: isTouch
   };
 })(this);

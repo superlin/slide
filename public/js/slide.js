@@ -1,3 +1,4 @@
+/*global Detect*/
 ; (function (window, undefined) {
 
   function $(selector, context) {
@@ -44,9 +45,9 @@
     });
   }
 
-  var settings = {
+  /*var settings = {
     interval: 3000
-  };
+  };*/
 
   function Slide(opts) {
     var self = this,
@@ -56,7 +57,8 @@
       $next = $('.slide-next', $container)[0],
       $markerWrap = $('.slide-marker', $container)[0],
       $markers = $('span', $markerWrap),
-      $first, $last;
+      $first, $last,
+      startpos, lastpos;
 
     // 参数初始化
     self.width = opts.width;
@@ -67,13 +69,18 @@
     self.interval = 3000;
     
     // 上一页和下一页
-    $prev.onclick = function () {
-      self.nextSlice();
-    };
-
-    $next.onclick = function () {
-      self.prevSlice();
-    };
+    if (Detect.isTouch) {
+      $prev.style.display = 'none';
+      $next.style.display = 'none';
+    } else {
+      bind($prev, 'click', function () {
+        self.nextSlice();
+      });
+      
+      bind($next, 'click', function () {
+        self.prevSlice();
+      });
+    }
 
     // 初始化slide-marker
     $markers[0].classList.add('active');
@@ -100,12 +107,54 @@
     self.setPosition(-opts.width, 1, true);
   
     // 自动轮播
-    $container.onmouseover = function () {
-      self.stop();
-    };
-    $container.onmouseout = function () {
-      self.play();
-    };
+    if (Detect.isTouch) {
+      bind($container, 'touchstart', function (e) {
+        e.preventDefault();
+        if (self.animated) {
+          return;
+        }
+        startpos = e.touches[0].pageX;
+        self.stop();
+      });
+      
+      bind($container, 'touchmove', function (e) {
+        e.preventDefault();
+        if (self.animated) {
+          return;
+        }
+        var x = e.touches[0].pageX, 
+          dis = lastpos ? (x - lastpos) : 0;
+        
+        lastpos = x;
+        
+        self.setPosition(self.position + dis, undefined, true);
+      });
+      
+      bind($container, 'touchend', function (e) {
+        e.preventDefault();
+        if (self.animated) {
+          return;
+        }
+        // 向右滑动
+        if (lastpos > startpos) {
+          self.prevSlice();
+        }
+        // 向左滑动
+        else {
+          self.nextSlice();
+        }
+        startpos = lastpos = 0;
+        self.play();
+      });
+    } else {
+      bind($container, 'mouseover', function () {
+        self.stop();
+      });
+      
+      bind($container, 'mouseout', function () {
+        self.play();
+      });
+    }
     self.play();
   }
 
@@ -138,6 +187,7 @@
       $ele.style[transition.key] = transform.val + ' 0.5s linear';
       bind($ele, Detect.transitionEndName, transitionend);
     }
+    self.position = pos;
     $ele.style[transform.key] = Detect.transform3d ? 'translate3d(' + pos + 'px, 0, 0)' : 'translate(' + pos + 'px, 0)';
 
     function transitionend() {
@@ -150,6 +200,7 @@
         }
         $ele.style[transition.key] = 'none';
         $ele.style[transform.key] = Detect.transform3d ? 'translate3d(' + dis + 'px, 0, 0)' : 'translate(' + dis + 'px, 0)';;
+        self.position = dis;
       }
       unbind($ele, Detect.transitionEndName, transitionend);
       self.animated = false;

@@ -1,9 +1,16 @@
 ; (function (window, undefined) {
   'use strict';
   
-  var TEST_ELE = document.createElement('p');
-  var PREFIXS = ['', 'webkit', 'Moz', 'ms', 'O'];
+  // 测试元素
+  var TEST_ELE = document.createElement('p'),
+    // js属性前缀
+    PREFIXS = ['', 'webkit', 'Moz', 'ms', 'O'];
   
+  /**
+   * 为摸一个属性添加前缀
+   * @param {String} css属性
+   * @return         属性map
+   */
   function prefixed(prop) {
     var res = {},
       camp = prop.slice(0, 1).toUpperCase() + prop.slice(1);
@@ -19,6 +26,11 @@
     return res;
   }
   
+  /**
+   * 获取当前浏览器支持的属性
+   * @param {String} css属性
+   * @return         js属性：css属性
+   */
   function propName(prop) {
     var props = prefixed(prop);
     for (var t in props) {
@@ -31,14 +43,17 @@
     }
   }
 
+  // transform属性名称
   var transformName = (function () {
     return propName('transform');
   })();
   
+  // transition属性名称
   var transitionName = (function () {
     return propName('transition');
   })();
 
+  // transitionend事件名称
   var transitionEndName = (function () {
     var i,
       el = document.createElement('div'),
@@ -57,6 +72,7 @@
     }
   })();
 
+  // 是否支持3d transform
   var transform3d = (function () {
     if (!transformName || !window.getComputedStyle) {
       return false;
@@ -76,6 +92,7 @@
     return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
   })();
   
+  // 当前是不是touch
   var isTouch = (function() {
     return 'ontouchstart' in window;
   })();

@@ -1,16 +1,27 @@
 /*global Detect*/
 ; (function (window, undefined) {
+  'use strict';
 
+  /**
+   * 简单的选择器
+   * @param {String|DOMElement|Array} 选择器/单个dom元素/dom数组
+   * @param {DOMElement}              父级元素
+   */
   function $(selector, context) {
     var eles;
 
     if (typeof selector !== 'string') {
+      // DOM数组
       if (selector.length && selector.length !== 1) {
         return [].slice.call(selector);
-      } else {
+      }
+      // 单个元素
+      else {
         return [selector];
       }
-    } else {
+    }
+    // 字符串
+    else {
       context = context || document;
       eles = context.querySelectorAll(selector);
       eles = eles || [];
@@ -19,6 +30,12 @@
     }
   }
 
+  /**
+   * 绑定事件
+   * @param {String|DOMElement|Array} 选择器/单个dom元素/dom数组
+   * @param {String}                  事件数组，空格分隔
+   * @param {Function}                回调函数
+   */
   function bind(eles, events, fun) {
     eles = $(eles);
     events = events.split(/\s+/);
@@ -32,6 +49,12 @@
     });
   }
   
+  /**
+   * 解除绑定
+   * @param {String|DOMElement|Array} 选择器/单个dom元素/dom数组
+   * @param {String}                  事件数组，空格分隔
+   * @param {Function}                回调函数
+   */
   function unbind(eles, events, fun) {
     eles = $(eles);
     events = events.split(/\s+/);
@@ -51,22 +74,29 @@
 
   function Slide(opts) {
     var self = this,
+      // 容器
       $container = $(opts.container)[0],
+      // 轮播图片列表
       $list = $('.slide-list', $container)[0],
+      // 下一页链接
       $prev = $('.slide-prev', $container)[0],
+      // 上一页链接
       $next = $('.slide-next', $container)[0],
+      // 页数指示器
       $markerWrap = $('.slide-marker', $container)[0],
+      // 所有的指示器
       $markers = $('span', $markerWrap),
+      
       $first, $last,
       startpos, lastpos;
 
     // 参数初始化
-    self.width = opts.width;
-    self.markers = $markers;
-    self.index = 1;
-    self.len = $markers.length;
-    self.animated = false;
-    self.interval = 3000;
+    self.width = opts.width;    // 一页的宽度
+    self.markers = $markers;    // 指示器列表
+    self.index = 1;             // 当前页数
+    self.len = $markers.length; // 总页数
+    self.animated = false;      // 当前是否正在播放动画
+    self.interval = 3000;       // 自动轮播时间间隔
     
     // 上一页和下一页
     if (Detect.isTouch) {
@@ -174,6 +204,12 @@
     $markers[i].classList.add('active');
   }
 
+  /**
+   * 设置轮播的偏移位置
+   * @param {Integer} 偏移的位置
+   * @param {Integer} 当前到第几页
+   * @param {Boolean} 是否需要过渡效果
+   */
   function setPosition(pos, slice, noTtransition) {
     var self = this,
       $ele = self.list,
@@ -207,6 +243,10 @@
     }
   }
 
+  /**
+   * 轮播到某一页
+   * @param {Integer} 页面编号
+   */
   Slide.prototype.switchTo = function (slice) {
     if (this.animated || this.index === slice) {
       return;
@@ -219,23 +259,39 @@
     this.setPosition(-slice * this.width, slice);
   };
 
+  /**
+   * 轮播到下一页
+   */
   Slide.prototype.nextSlice = function () {
     this.switchTo(this.index + 1);
   };
 
+  /**
+   * 轮播到上一页
+   */
   Slide.prototype.prevSlice = function () {
     this.switchTo(this.index - 1);
   };
 
+  /**
+   * 停止自动轮播
+   */
   Slide.prototype.stop = function () {
-    clearTimeout(this.timer);
+    clearInterval(this.timer);
+    this.timer = undefined;
   };
 
+  /**
+   * 开始自动轮播
+   */
   Slide.prototype.play = function () {
     var self = this;
-    self.timer = setTimeout(function () {
+    // 之前的没有清除，不能再次设定
+    if (this.timer) {
+      return;
+    }
+    self.timer = setInterval(function () {
       self.nextSlice();
-      self.play();
     }, self.interval);
   };
 

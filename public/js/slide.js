@@ -88,7 +88,8 @@
       $markers = $('span', $markerWrap),
       
       $first, $last,
-      startpos, lastpos;
+      startpos, lastpos,
+      scrolltimer;
 
     // 参数初始化
     self.width = opts.width;    // 一页的宽度
@@ -135,6 +136,22 @@
     self.list = $list;
     self.setPosition = setPosition.bind(self);
     self.setPosition(-opts.width, 1, true);
+    
+    // 超出界限 停止轮播（防抖动）
+    bind(window, 'scroll', function () {
+      if (scrolltimer) {
+        clearTimeout(scrolltimer);
+      }
+      scrolltimer = setTimeout(function () {
+        var rect = $container.getBoundingClientRect();
+        if (rect.height < -rect.top || rect.height < -rect.bottom
+          || rect.width < -rect.left || rect.width < -rect.right) {
+          self.stop();
+        } else {
+          self.play();
+        }
+      }, 100);
+    });
   
     // 自动轮播
     if (Detect.isTouch) {
@@ -185,6 +202,7 @@
         self.play();
       });
     }
+    // 开始轮播
     self.play();
   }
 

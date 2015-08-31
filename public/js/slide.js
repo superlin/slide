@@ -245,5 +245,5 @@
 
 var slide = new Slide({
   container: '.container',
-  width: 750
+  width: 640
 });

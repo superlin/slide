@@ -6,6 +6,7 @@
    * 简单的选择器
    * @param {String|DOMElement|Array} 选择器/单个dom元素/dom数组
    * @param {DOMElement}              父级元素
+   * @return                          DOM元素数组
    */
   function $(selector, context) {
     var eles;
@@ -67,23 +68,48 @@
       });
     });
   }
-
-  /*var settings = {
-    interval: 3000
-  };*/
+  
+  /**
+   * 设置默认参数
+   * @param {Object} 默认参数
+   * @param {Object} 参数列表
+   */
+  function defaults(defs, opts) {
+    for (var k in defs) {
+      if (defs.hasOwnProperty(k)) {
+        if (!opts.hasOwnProperty(k)) {
+          opts[k] = defs[k];
+        }
+      }
+    }
+  }
+  
+  // 默认参数列表
+  var settings = {
+    interval: 3000,
+    container: '.container',
+    list: '.slide-list',
+    prev: '.slide-prev',
+    next: '.slide-next',
+    markers: '.slide-marker',
+    img: 'img'
+  };
 
   function Slide(opts) {
+    // 设置默认值
+    defaults(settings, opts);
+    
     var self = this,
       // 容器
       $container = $(opts.container)[0],
       // 轮播图片列表
-      $list = $('.slide-list', $container)[0],
+      $list = $(opts.list, $container)[0],
       // 下一页链接
-      $prev = $('.slide-prev', $container)[0],
+      $prev = $(opts.prev, $container)[0],
       // 上一页链接
-      $next = $('.slide-next', $container)[0],
+      $next = $(opts.next, $container)[0],
       // 页数指示器
-      $markerWrap = $('.slide-marker', $container)[0],
+      $markerWrap = $(opts.markers, $container)[0],
       // 所有的指示器
       $markers = $('span', $markerWrap),
       
@@ -92,12 +118,12 @@
       scrolltimer;
 
     // 参数初始化
-    self.width = opts.width;    // 一页的宽度
-    self.markers = $markers;    // 指示器列表
-    self.index = 1;             // 当前页数
-    self.len = $markers.length; // 总页数
-    self.animated = false;      // 当前是否正在播放动画
-    self.interval = 3000;       // 自动轮播时间间隔
+    self.width = opts.width;      // 一页的宽度
+    self.markers = $markers;      // 指示器列表
+    self.index = 1;               // 当前页数
+    self.len = $markers.length;   // 总页数
+    self.animated = false;        // 当前是否正在播放动画
+    self.interval = opts.interval;// 自动轮播时间间隔
     
     // 上一页和下一页
     if (Detect.isTouch) {
@@ -128,8 +154,8 @@
     }
   
     // 初始化slide
-    $first = $('img:first-child', $list)[0];
-    $last = $('img:last-child', $list)[0];
+    $first = $(opts.img + ':first-child', $list)[0];
+    $last = $(opts.img + ':last-child', $list)[0];
     $list.appendChild($first.cloneNode());
     $list.insertBefore($last.cloneNode(), $first);
 

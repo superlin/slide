@@ -1,31 +1,31 @@
 ; (function (window, undefined) {
   'use strict';
-  
+
   // 测试元素
   var TEST_ELE = document.createElement('p'),
     // js属性前缀
     PREFIXS = ['', 'webkit', 'Moz', 'ms', 'O'];
-  
+
   /**
-   * 为摸一个属性添加前缀
+   * 为属性添加前缀
    * @param {String} css属性
    * @return         属性map
    */
   function prefixed(prop) {
     var res = {},
       camp = prop.slice(0, 1).toUpperCase() + prop.slice(1);
-    
+
     prop = prop.toLowerCase();
-    
+
     PREFIXS.forEach(function (pre) {
       var key = pre === '' ? prop : pre+camp,
         val =  pre === '' ? prop : '-'+pre.toLowerCase()+'-'+prop;
       res[key] = val;
     });
-    
+
     return res;
   }
-  
+
   /**
    * 获取当前浏览器支持的属性
    * @param {String} css属性
@@ -47,7 +47,7 @@
   var transformName = (function () {
     return propName('transform');
   })();
-  
+
   // transition属性名称
   var transitionName = (function () {
     return propName('transition');
@@ -91,12 +91,12 @@
 
     return (has3d !== undefined && has3d.length > 0 && has3d !== "none");
   })();
-  
+
   // 当前是不是touch
   var isTouch = (function() {
     return 'ontouchstart' in window;
   })();
-  
+
   window.Detect = {
     transitionName: transitionName,
     transitionEndName: transitionEndName,

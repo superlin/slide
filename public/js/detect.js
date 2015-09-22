@@ -1,3 +1,4 @@
+/*jslint browser:true */
 ; (function (window, undefined) {
   'use strict';
 
@@ -18,8 +19,8 @@
     prop = prop.toLowerCase();
 
     PREFIXS.forEach(function (pre) {
-      var key = pre === '' ? prop : pre+camp,
-        val =  pre === '' ? prop : '-'+pre.toLowerCase()+'-'+prop;
+      var key = pre === '' ? prop : pre + camp,
+        val = pre === '' ? prop : '-' + pre.toLowerCase() + '-' + prop;
       res[key] = val;
     });
 
@@ -93,7 +94,7 @@
   })();
 
   // 当前是不是touch
-  var isTouch = (function() {
+  var isTouch = (function () {
     return 'ontouchstart' in window;
   })();
 

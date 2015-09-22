@@ -1,5 +1,6 @@
 /*global Detect*/
-; (function (window, undefined) {
+/*jslint browser:true */
+var Slide = (function (window, undefined) {
   'use strict';
 
   /**
@@ -26,7 +27,7 @@
       context = context || document;
       eles = context.querySelectorAll(selector);
       eles = eles || [];
-  
+
       return [].slice.call(eles);
     }
   }
@@ -49,7 +50,7 @@
       });
     });
   }
-  
+
   /**
    * 解除绑定
    * @param {String|DOMElement|Array} 选择器/单个dom元素/dom数组
@@ -68,7 +69,7 @@
       });
     });
   }
-  
+
   /**
    * 设置默认参数
    * @param {Object} 默认参数
@@ -83,7 +84,7 @@
       }
     }
   }
-  
+
   // 默认参数列表
   var settings = {
     interval: 3000,
@@ -98,7 +99,7 @@
   function Slide(opts) {
     // 设置默认值
     defaults(settings, opts);
-    
+
     var self = this,
       // 容器
       $container = $(opts.container)[0],
@@ -112,19 +113,19 @@
       $markerWrap = $(opts.markers, $container)[0],
       // 所有的指示器
       $markers = $('span', $markerWrap),
-      
+
       $first, $last,
       startpos, lastpos,
       scrolltimer;
 
     // 参数初始化
-    self.width = opts.width;      // 一页的宽度
-    self.markers = $markers;      // 指示器列表
-    self.index = 1;               // 当前页数
-    self.len = $markers.length;   // 总页数
-    self.animated = false;        // 当前是否正在播放动画
-    self.interval = opts.interval;// 自动轮播时间间隔
-    
+    self.width = opts.width; // 一页的宽度
+    self.markers = $markers; // 指示器列表
+    self.index = 1; // 当前页数
+    self.len = $markers.length; // 总页数
+    self.animated = false; // 当前是否正在播放动画
+    self.interval = opts.interval; // 自动轮播时间间隔
+
     // 上一页和下一页
     if (Detect.isTouch) {
       $prev.style.display = 'none';
@@ -133,7 +134,7 @@
       bind($prev, 'click', function () {
         self.nextSlice();
       });
-      
+
       bind($next, 'click', function () {
         self.prevSlice();
       });
@@ -146,13 +147,14 @@
     });
 
     $markerWrap.onclick = function (e) {
-      var ele = e.target, index;
+      var ele = e.target,
+        index;
       if (ele.tagName === 'SPAN') {
         index = ele.getAttribute('index') || 1;
         self.switchTo(parseInt(index, 10));
       }
-    }
-  
+    };
+
     // 初始化slide
     $first = $(opts.img + ':first-child', $list)[0];
     $last = $(opts.img + ':last-child', $list)[0];
@@ -162,7 +164,7 @@
     self.list = $list;
     self.setPosition = setPosition.bind(self);
     self.setPosition(-opts.width, 1, true);
-    
+
     // 超出界限 停止轮播（防抖动）
     bind(window, 'scroll', function () {
       if (scrolltimer) {
@@ -170,15 +172,14 @@
       }
       scrolltimer = setTimeout(function () {
         var rect = $container.getBoundingClientRect();
-        if (rect.height < -rect.top || rect.height < -rect.bottom
-          || rect.width < -rect.left || rect.width < -rect.right) {
+        if (rect.height < -rect.top || rect.height < -rect.bottom || rect.width < -rect.left || rect.width < -rect.right) {
           self.stop();
         } else {
           self.play();
         }
       }, 100);
     });
-  
+
     // 自动轮播
     if (Detect.isTouch) {
       bind($container, 'touchstart', function (e) {
@@ -189,20 +190,20 @@
         startpos = e.touches[0].pageX;
         self.stop();
       });
-      
+
       bind($container, 'touchmove', function (e) {
         e.preventDefault();
         if (self.animated) {
           return;
         }
-        var x = e.touches[0].pageX, 
+        var x = e.touches[0].pageX,
           dis = lastpos ? (x - lastpos) : 0;
-        
+
         lastpos = x;
-        
+
         self.setPosition(self.position + dis, undefined, true);
       });
-      
+
       bind($container, 'touchend', function (e) {
         e.preventDefault();
         if (self.animated) {
@@ -223,7 +224,7 @@
       bind($container, 'mouseover', function () {
         self.stop();
       });
-      
+
       bind($container, 'mouseout', function () {
         self.play();
       });
@@ -279,7 +280,7 @@
           dis = -self.len * self.width;
         }
         $ele.style[transition.key] = 'none';
-        $ele.style[transform.key] = Detect.transform3d ? 'translate3d(' + dis + 'px, 0, 0)' : 'translate(' + dis + 'px, 0)';;
+        $ele.style[transform.key] = Detect.transform3d ? 'translate3d(' + dis + 'px, 0, 0)' : 'translate(' + dis + 'px, 0)';
         self.position = dis;
       }
       unbind($ele, Detect.transitionEndName, transitionend);
@@ -339,11 +340,11 @@
     }, self.interval);
   };
 
-  window.Slide = Slide;
+  return Slide;
 
 })(this);
 
-var slide = new Slide({
+new Slide({
   container: '.container',
   width: 640
 });

@@ -1,5 +1,5 @@
 /*global Detect*/
-/*jslint browser:true */
+/*jslint browser:true*/
 var Slide = (function (window, undefined) {
   'use strict';
 
